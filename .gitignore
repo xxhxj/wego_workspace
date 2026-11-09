@@ -1,0 +1,16 @@
+# 四个业务仓库保持不变，由工作区仓库统一跟踪启动脚本和部署工具
+/wego_sso/
+/wego_3d_texture/
+/wego_fingertip_3d_web/
+/wego_quiz_3d/
+/答题闯关系统设计文档/
+
+# 通用忽略
+.qoder/
+node_modules/
+dist/
+logs/
+*.log
+*.tar.gz
+Thumbs.db
+.DS_Store

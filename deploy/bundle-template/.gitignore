@@ -1,0 +1,5 @@
+config/deploy.env
+backend/*/.env
+backend/*/keys/
+node_modules/
+logs/

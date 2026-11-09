@@ -1,0 +1,6 @@
+deploy.env
+*.bak.*
+/nginx/
+/ecosystem.config.cjs
+/dist/
+*.tar.gz

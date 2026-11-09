@@ -1,0 +1,98 @@
+# wego 四系统单文件 Nginx 配置
+# 打包时生成 nginx/wego.conf；也可以直接放到 /etc/nginx/conf.d/wego.conf。
+# 配置里的根目录占位符会在打包/安装时替换成服务器绝对路径（默认 /opt/wego）。
+
+# 单点登录
+server {
+    listen 80;
+    server_name __SSO_DOMAIN__;
+    root __ROOT__/frontend/sso;
+    index index.html;
+    client_max_body_size 32m;
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location / { try_files $uri $uri/ /index.html; }
+}
+
+# 包装样机
+server {
+    listen 80;
+    server_name __MOCKUP_DOMAIN__;
+    root __ROOT__/frontend/mockup;
+    index index.html;
+    client_max_body_size 32m;
+
+    location = /share { try_files /share.html =404; }
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location / { try_files $uri $uri/ /index.html; }
+}
+
+# 三维建模
+server {
+    listen 80;
+    server_name __CAD_DOMAIN__;
+    root __ROOT__/frontend/cad;
+    index index.html;
+    client_max_body_size 32m;
+
+    location ~* \.wasm$ {
+        types { application/wasm wasm; }
+        try_files $uri =404;
+    }
+
+    location / { try_files $uri $uri/ /index.html; }
+}
+
+# 答题闯关
+server {
+    listen 80;
+    server_name __QUIZ_DOMAIN__;
+    root __ROOT__/frontend/quiz;
+    index index.html;
+    client_max_body_size 32m;
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:3002;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location / { try_files $uri $uri/ /index.html; }
+}
+
+# __FILES_BEGIN__
+# MinIO 图片 / 分享预览（MINIO_PROXY=1 时保留）
+server {
+    listen 80;
+    server_name __FILES_DOMAIN__;
+    client_max_body_size 32m;
+
+    location / {
+        proxy_pass __MINIO_PROXY_TARGET__;
+        proxy_set_header Host $proxy_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+# __FILES_END__
